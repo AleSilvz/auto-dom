@@ -1,0 +1,26 @@
+#app_container {
+  display: flex;
+  width: 100dvw;
+  height: 100dvh;
+  background-color: #f7f9ff;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  width: 250px;
+  height: 100dvh;
+  background-color: #f8fafc;
+}
+
+.body {
+  display: flex;
+  width: 100%;
+  height: 100dvh;
+}
+
+.header {
+  height: 50px;
+  width: 100%;
+  background-color: #fefeff;
+}

@@ -1,0 +1,9 @@
+.tabela {
+  display: flex;
+  gap: 15px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 20px 20px 0 0;
+  border: 1px solid #f5f5f5;
+  justify-content: space-between;
+}
