@@ -4,8 +4,8 @@ import Layout from "./Layout";
 import Home from "./pages/Home";
 import Sobre from "./pages/Sobre";
 import Colaboradores from "./pages/Colaboradores";
-import Escalas from "./pages/escalas";
 import ConfiguracaoEscalas from "./components/ConfiguracaoEscalas";
+import Escalas from "./pages/Escalas";
 
 function App() {
   return (

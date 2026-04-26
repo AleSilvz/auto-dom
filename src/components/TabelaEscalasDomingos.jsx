@@ -16,8 +16,7 @@ function TabelaEscalasDomingos() {
 
   return (
     <div>
-      <h2>Escala 00/00/000</h2>
-      <input type="date" name="" id="" />
+      <h2>Escala 00/00/0000</h2>
       <button>Criar escalas</button>
 
       {arr.map((e) => (
