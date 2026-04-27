@@ -21,7 +21,7 @@ function Escalas() {
           acc[item.funcao] = [];
         }
 
-        acc[item.funcao].push(item);
+        acc[item.funcao].push({ item, domingoAtual: 0 });
         return acc;
       }, {});
 
@@ -30,6 +30,8 @@ function Escalas() {
       console.error(error);
     }
   }
+
+  console.log(colaboradores);
 
   useEffect(() => {
     verificacaoPrimeiroAcesso();
@@ -45,14 +47,40 @@ function Escalas() {
         <h1>Primeiro acesso</h1>
         <p>Configure o domingo de cada colaborador!</p>
         <br />
-        <button>primeiro</button>
-        <br />
         {Object.entries(colaboradores).map(([funcao, lista]) => (
           <div key={funcao}>
             <h2>{funcao}</h2>
 
             {lista.map((pessoa, index) => (
-              <p key={index}>{pessoa.colaborador}</p>
+              <>
+                <p
+                  key={index}
+                  onClick={() => {
+                    console.log(colaboradores[funcao][index]);
+                  }}
+                >
+                  {pessoa.item.colaborador}
+                </p>
+                <input
+                  type="number"
+                  name=""
+                  id=""
+                  onChange={(e) => {
+                    setColaboradores((prev) => ({
+                      ...prev,
+                      [funcao]: prev[funcao].map((item, i) => {
+                        if (i === index) {
+                          return {
+                            ...item,
+                            domingoAtual: Number(e.target.value),
+                          };
+                        }
+                        return item;
+                      }),
+                    }));
+                  }}
+                />
+              </>
             ))}
           </div>
         ))}

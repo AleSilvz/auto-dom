@@ -13,6 +13,7 @@ import {
   LabelList,
 } from "recharts";
 import RadialBarChartExample from "../components/graficos/RadialBarChartExample";
+import TabelaTrabalhando from "../components/tabelaTabalhando";
 
 function Home() {
   const [currentSelect, setCurrentSelect] = useState("Todos");
@@ -22,6 +23,8 @@ function Home() {
       { title: "Ativos", total: 0 },
       { title: "Em férias", total: 0 },
       { title: "Inativo", total: 0 },
+      { title: "Folgando hoje", total: 0 },
+      { title: "Trabalhando hoje", total: 0 },
     ],
     semana: [
       { title: "Dom", total: 0 },
@@ -134,6 +137,7 @@ function Home() {
       ],
     },
     folgandoHoje: [],
+    trabalhandoHoje: [],
   });
 
   const mapaDias = {
@@ -166,6 +170,7 @@ function Home() {
       const snapshot = await getDocs(docRef);
       const resultado = {};
       const folgaHoje = [];
+      const trabalhandoHoje = [];
       const date = new Date();
       const hoje = date.toLocaleDateString("pt-BR", { weekday: "short" });
 
@@ -221,6 +226,8 @@ function Home() {
           String(diaCurto).toLocaleLowerCase()
         ) {
           folgaHoje.push(data);
+        } else {
+          trabalhandoHoje.push(data);
         }
       });
 
@@ -233,6 +240,8 @@ function Home() {
           { title: "Ativos", total: ativos },
           { title: "Em férias", total: ferias },
           { title: "Inativo", total: total - ativos - ferias },
+          { title: "Folgando hoje", total: folgaHoje.length },
+          { title: "Trabalhando hoje", total: trabalhandoHoje.length },
         ],
         semana: Object.entries(contagemSemana).map(([dia, total]) => ({
           title: dia,
@@ -240,6 +249,7 @@ function Home() {
         })),
         funcao: resultado,
         folgandoHoje: folgaHoje,
+        trabalhandoHoje: trabalhandoHoje,
       }));
     } catch (error) {
       console.error(error);
@@ -254,21 +264,13 @@ function Home() {
   const filtroFuncao = dadosFuncionarios.funcao[currentSelect];
   const resultado = consulta ? dadosFuncionarios.semana : filtroFuncao;
 
-  console.log(dadosFuncionarios.folgandoHoje);
-
-  const thStyle = {
-    textAlign: "left",
-    padding: "12px 16px",
-    fontSize: 14,
-    color: "#555",
-    fontWeight: "600",
-  };
-
-  const tdStyle = {
-    padding: "12px 16px",
-    fontSize: 14,
-    color: "#333",
-  };
+  const tabelaFuncao = dadosFuncionarios?.folgandoHoje.reduce((acc, valor) => {
+    if (!acc[valor.funcao]) {
+      acc[valor.funcao] = [];
+    }
+    acc[valor.funcao].push(valor);
+    return acc;
+  }, {});
 
   return (
     <div
@@ -279,7 +281,7 @@ function Home() {
         padding: "20px",
         gap: 20,
         flexDirection: "column",
-        overflowY: 'auto'
+        overflowY: "auto",
       }}
     >
       <div style={{ display: "flex" }}>
@@ -338,7 +340,7 @@ function Home() {
               <BarChart data={resultado} margin={{ top: 20 }}>
                 <XAxis dataKey="title" fontSize={15} style={{ padding: 15 }} />
 
-                <Bar dataKey="total" fill="#3c7aff" >
+                <Bar dataKey="total" fill="#3c7aff">
                   <LabelList
                     dataKey="total"
                     position="top"
@@ -351,60 +353,15 @@ function Home() {
         </div>
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          gap: 10,
-          flexDirection: "column",
-          width: "100%",
-        }}
-      >
-        <p style={{ fontSize: 15, fontWeight: "400", color: "#808080" }}>
-          Folgando hoje
-        </p>
-
-        <table
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            backgroundColor: "#fff",
-            borderRadius: 8,
-            overflow: "hidden",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-          }}
-        >
-          <thead style={{ backgroundColor: "#f5f5f5" }}>
-            <tr>
-              <th style={thStyle}>Colaborador</th>
-              <th style={thStyle}>Função</th>
-              <th style={thStyle}>Folga Fixa</th>
-              <th style={thStyle}>Horário</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {dadosFuncionarios?.folgandoHoje.map((e, i) => (
-              <tr
-                key={i}
-                style={{
-                  borderTop: "1px solid #eee",
-                  transition: "0.2s",
-                }}
-                onMouseEnter={(ev) =>
-                  (ev.currentTarget.style.background = "#fafafa")
-                }
-                onMouseLeave={(ev) =>
-                  (ev.currentTarget.style.background = "transparent")
-                }
-              >
-                <td style={tdStyle}>{e.colaborador}</td>
-                <td style={tdStyle}>{e.funcao}</td>
-                <td style={tdStyle}>{e.folgaFixa}</td>
-                <td style={tdStyle}>{e.horario.entrada}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div style={{ gap: 20, display: 'flex', flexDirection: 'column' }}>
+        <TabelaTrabalhando
+          data={dadosFuncionarios?.folgandoHoje}
+          title={"Folgando hoje"}
+        />
+        <TabelaTrabalhando
+          data={dadosFuncionarios?.trabalhandoHoje}
+          title={"Trabalhando hoje"}
+        />
       </div>
     </div>
   );
