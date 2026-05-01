@@ -1,63 +1,63 @@
-function gerarEscalaAnual() {
-  const dados = [
-    { name: "Alessandro", sexo: "M", domingo: 2 },
-    { name: "Fatima", sexo: "F", domingo: 2 },
-  ];
+// function gerarEscalaAnual() {
+//   const dados = [
+//     { name: "Alessandro", sexo: "M", domingo: 2 },
+//     { name: "Fatima", sexo: "F", domingo: 2 },
+//   ];
 
-  const resultado = [];
+//   const resultado = [];
 
-  for (let mes = 0; mes < 12; mes++) {
-    const domingos = [];
-    const date = new Date(2026, mes, 1);
+//   for (let mes = 0; mes < 12; mes++) {
+//     const domingos = [];
+//     const date = new Date(2026, mes, 1);
 
-    // pega domingos do mês
-    while (date.getMonth() === mes) {
-      if (date.getDay() === 0) {
-        domingos.push(new Date(date));
-      }
-      date.setDate(date.getDate() + 1);
-    }
+//     // pega domingos do mês
+//     while (date.getMonth() === mes) {
+//       if (date.getDay() === 0) {
+//         domingos.push(new Date(date));
+//       }
+//       date.setDate(date.getDate() + 1);
+//     }
 
-    // escala do mês
-    const escalaMes = [];
+//     // escala do mês
+//     const escalaMes = [];
 
-    dados.forEach((pessoa) => {
-      const limite = pessoa.sexo === "M" ? 3 : 2;
-      let contador = pessoa.domingo;
+//     dados.forEach((pessoa) => {
+//       const limite = pessoa.sexo === "M" ? 3 : 2;
+//       let contador = pessoa.domingo;
 
-      const trabalha = [];
+//       const trabalha = [];
 
-      domingos.forEach((domingo) => {
-        if (contador <= limite) {
-          trabalha.push(
-            domingo.toLocaleDateString("pt-BR", {
-              day: "2-digit",
-              month: "2-digit",
-            })
-          );
-          contador++;
-        } else {
-          // folga
-          contador = 1;
-        }
-      });
+//       domingos.forEach((domingo) => {
+//         if (contador <= limite) {
+//           trabalha.push(
+//             domingo.toLocaleDateString("pt-BR", {
+//               day: "2-digit",
+//               month: "2-digit",
+//             })
+//           );
+//           contador++;
+//         } else {
+//           // folga
+//           contador = 1;
+//         }
+//       });
 
-      // 🔥 atualiza estado da pessoa para o próximo mês
-      pessoa.domingo = contador;
+//       // 🔥 atualiza estado da pessoa para o próximo mês
+//       pessoa.domingo = contador;
 
-      escalaMes.push({
-        nome: pessoa.name,
-        trabalha,
-      });
-    });
+//       escalaMes.push({
+//         nome: pessoa.name,
+//         trabalha,
+//       });
+//     });
 
-    resultado.push({
-      mes: new Date(2026, mes).toLocaleDateString("pt-BR", {
-        month: "long",
-      }),
-      escala: escalaMes,
-    });
-  }
+//     resultado.push({
+//       mes: new Date(2026, mes).toLocaleDateString("pt-BR", {
+//         month: "long",
+//       }),
+//       escala: escalaMes,
+//     });
+//   }
 
-  console.log(resultado);
-}
+//   console.log(resultado);
+// }
