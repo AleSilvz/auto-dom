@@ -1,19 +1,9 @@
 import { useEffect, useState } from "react";
 import { db } from "../firebaseConfig";
-import { collection, getDocs, query, where } from "firebase/firestore";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  Legend,
-  ResponsiveContainer,
-  LabelList,
-} from "recharts";
-import RadialBarChartExample from "../components/graficos/RadialBarChartExample";
+import { collection, getDocs } from "firebase/firestore";
+import { BarChart, Bar, XAxis, ResponsiveContainer, LabelList } from "recharts";
 import TabelaTrabalhando from "../components/tabelaTabalhando";
+import TimelineDemo from "../components/TimelineDemo";
 
 function Home() {
   const [currentSelect, setCurrentSelect] = useState("Todos");
@@ -22,7 +12,6 @@ function Home() {
       { title: "Total", total: 0 },
       { title: "Ativos", total: 0 },
       { title: "Em férias", total: 0 },
-      { title: "Inativo", total: 0 },
       { title: "Folgando hoje", total: 0 },
       { title: "Trabalhando hoje", total: 0 },
     ],
@@ -239,7 +228,6 @@ function Home() {
           { title: "Total", total: total },
           { title: "Ativos", total: ativos },
           { title: "Em férias", total: ferias },
-          { title: "Inativo", total: total - ativos - ferias },
           { title: "Folgando hoje", total: folgaHoje.length },
           { title: "Trabalhando hoje", total: trabalhandoHoje.length },
         ],
@@ -264,104 +252,114 @@ function Home() {
   const filtroFuncao = dadosFuncionarios.funcao[currentSelect];
   const resultado = consulta ? dadosFuncionarios.semana : filtroFuncao;
 
-  const tabelaFuncao = dadosFuncionarios?.folgandoHoje.reduce((acc, valor) => {
-    if (!acc[valor.funcao]) {
-      acc[valor.funcao] = [];
-    }
-    acc[valor.funcao].push(valor);
-    return acc;
-  }, {});
-
   return (
     <div
       style={{
         display: "flex",
         width: "100%",
         height: "100%",
-        padding: "20px",
-        gap: 20,
         flexDirection: "column",
-        overflowY: "auto",
       }}
     >
-      <div style={{ display: "flex" }}>
-        <div>
-          <h1 style={{ fontWeight: "bold", color: "#2C333B" }}>Dashboard</h1>
-          <p style={{ color: "gray" }}>
-            Gerencie sua equipe, visualize departamentos e controle o status
-            operacional de toda a equipe.
-          </p>
+      <div
+        style={{
+          fontWeight: "bold",
+          color: "#292929",
+          display: "flex",
+          width: "100%",
+          justifyContent: "right",
+          padding: "5px 20px",
+          // borderBottom: "1px solid #f1f1f1",
+        }}
+      >
+        <div
+          style={{
+            width: "100%",
+            display: "flex",
+            gap: "5%",
+          }}
+        >
+          {dadosFuncionarios?.resumo.map((e, i) => (
+            <span key={i}>
+              <h3 style={{ fontSize: 14, fontWeight: "300", color: "#808080" }}>
+                {e.title}
+              </h3>
+              <p style={{ fontSize: 25, fontWeight: "500", marginTop: -8 }}>
+                {String(e.total).padStart(2, "0")}
+              </p>
+            </span>
+          ))}
         </div>
+        <h2>Dashboard</h2>
       </div>
 
       <div
         style={{
-          width: "100%",
-          borderBottom: "1px solid #dfdfdf",
           display: "flex",
-          gap: "5%",
-          padding: "10px 0",
+          width: "100%",
+          height: "100%",
+          flexDirection: "column",
+          overflowY: "auto",
+          alignItems: "center",
         }}
       >
-        {dadosFuncionarios?.resumo.map((e, i) => (
-          <span key={i}>
-            <h3 style={{ fontSize: 15, fontWeight: "400", color: "#808080" }}>
-              {e.title}
-            </h3>
-            <p style={{ fontSize: 30, fontWeight: "500" }}>
-              {String(e.total).padStart(2, "0")}
-            </p>
-          </span>
-        ))}
-      </div>
 
-      <div style={{ display: "flex", gap: "5%" }}>
-        <div style={{ width: "35%" }}>
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <p style={{ fontSize: 15, fontWeight: "400", color: "#808080" }}>
-              Folgando na Semana
-            </p>
+        <TimelineDemo d={dadosFuncionarios} />
 
-            <select
-              style={{ padding: 5, userSelect: "none", outline: "none" }}
-              onClick={(e) => setCurrentSelect(e.target.value)}
-            >
-              <option value="Todos">Todos</option>
-              {funcaoF.map((e, i) => (
-                <option key={i} value={e}>
-                  {e}
-                </option>
-              ))}
-            </select>
-          </div>
-          <br />
-          <div style={{ width: "100%", height: 200 }}>
-            <ResponsiveContainer>
-              <BarChart data={resultado} margin={{ top: 20 }}>
-                <XAxis dataKey="title" fontSize={15} style={{ padding: 15 }} />
 
-                <Bar dataKey="total" fill="#3c7aff">
-                  <LabelList
-                    dataKey="total"
-                    position="top"
-                    style={{ fontSize: 12 }}
+        <div style={{ display: "flex", gap: "5%", width: "100%" }}>
+          <div style={{ width: "100%", padding: 20 }}>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <p style={{ fontSize: 15, fontWeight: "400", color: "#808080" }}>
+                Folgando na Semana
+              </p>
+
+              <select
+                style={{ padding: 5, userSelect: "none", outline: "none" }}
+                onClick={(e) => setCurrentSelect(e.target.value)}
+              >
+                <option value="Todos">Todos</option>
+                {funcaoF.map((e, i) => (
+                  <option key={i} value={e}>
+                    {e}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <br />
+            <div style={{ width: "100%", height: 200 }}>
+              <ResponsiveContainer>
+                <BarChart data={resultado} margin={{ top: 20 }}>
+                  <XAxis
+                    dataKey="title"
+                    fontSize={15}
+                    style={{ padding: 15 }}
                   />
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+
+                  <Bar dataKey="total" fill="#000000">
+                    <LabelList
+                      dataKey="total"
+                      position="top"
+                      style={{ fontSize: 12 }}
+                    />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div style={{ gap: 20, display: 'flex', flexDirection: 'column' }}>
-        <TabelaTrabalhando
-          data={dadosFuncionarios?.folgandoHoje}
-          title={"Folgando hoje"}
-        />
-        <TabelaTrabalhando
-          data={dadosFuncionarios?.trabalhandoHoje}
-          title={"Trabalhando hoje"}
-        />
+        {/* <div style={{ gap: 20, display: "flex", flexDirection: "column" }}>
+          <TabelaTrabalhando
+            data={dadosFuncionarios?.folgandoHoje}
+            title={"Folgando hoje"}
+          />
+          <TabelaTrabalhando
+            data={dadosFuncionarios?.trabalhandoHoje}
+            title={"Trabalhando hoje"}
+          />
+        </div> */}
+
       </div>
     </div>
   );

@@ -1,50 +1,38 @@
-import { GoGear, GoHome, GoPeople, GoSignOut, GoTable } from "react-icons/go";
-import { Link, NavLink } from "react-router-dom";
+import { GoGear, GoHome, GoPeople, GoTable } from "react-icons/go";
+import ButtonNavSideBar from "./buttonNavSidebar";
 
 function Sidebar() {
+  const routers = [
+    { to: "/", title: "Inicio", icon: GoHome },
+    { to: "/escalas", title: "Escalas", icon: GoTable },
+    { to: "/colaboradores", title: "Colaboradores", icon: GoPeople },
+    { to: "/configuracao", title: "Configuração", icon: GoGear },
+  ];
+
   return (
     <div
       style={{
-        padding: "20px",
+        display: "flex",
+        padding: "20px 15px",
+        backgroundColor: "#ffffff",
+        // width: "15%",
+        flexDirection: "column",
+        gap: 20,
+        borderRight: '1px solid #f1f1f1'
       }}
     >
+      <h2 style={{ color: "#2b2b2b",  }}>Sys-dom</h2>
       <nav
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: "25px",
-          backgroundColor: "#f8f8f8",
           height: "100%",
-          borderRadius: 50,
-          padding: "20px 10px",
-          border: "1px solid #e4e4e4",
+          gap: 15,
         }}
       >
-        <NavLink to="/" title="Inicio" end>
-          {({ isActive }) => (
-            <GoHome color={isActive ? "#007bff" : "#555"} fontSize={25} />
-          )}
-        </NavLink>
-
-        <NavLink to="/escalas" title="Escalas">
-          {({ isActive }) => (
-            <GoTable color={isActive ? "#007bff" : "#555"} fontSize={25} />
-          )}
-        </NavLink>
-
-        <NavLink to="/colaboradores" title="Colaboradores">
-          {({ isActive }) => (
-            <GoPeople color={isActive ? "#007bff" : "#555"} fontSize={25} />
-          )}
-        </NavLink>
-
-        <NavLink to="/configuracao" title="Configuração">
-          {({ isActive }) => (
-            <GoGear color={isActive ? "#007bff" : "#555"} fontSize={25} />
-          )}
-        </NavLink>
-
-        <GoSignOut fontSize={25} title="Sair" />
+        {routers.map((e) => (
+          <ButtonNavSideBar data={e} />
+        ))}
       </nav>
     </div>
   );
