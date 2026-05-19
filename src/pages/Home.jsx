@@ -4,6 +4,7 @@ import { collection, getDocs } from "firebase/firestore";
 import { BarChart, Bar, XAxis, ResponsiveContainer, LabelList } from "recharts";
 import TabelaTrabalhando from "../components/tabelaTabalhando";
 import TimelineDemo from "../components/TimelineDemo";
+import { fonts, cors } from "../global/cors";
 
 function Home() {
   const [currentSelect, setCurrentSelect] = useState("Todos");
@@ -259,6 +260,7 @@ function Home() {
         width: "100%",
         height: "100%",
         flexDirection: "column",
+        backgroundColor: cors.background,
       }}
     >
       <div
@@ -267,9 +269,8 @@ function Home() {
           color: "#292929",
           display: "flex",
           width: "100%",
-          justifyContent: "right",
+          justifyContent: "space-between",
           padding: "5px 20px",
-          // borderBottom: "1px solid #f1f1f1",
         }}
       >
         <div
@@ -281,16 +282,28 @@ function Home() {
         >
           {dadosFuncionarios?.resumo.map((e, i) => (
             <span key={i}>
-              <h3 style={{ fontSize: 14, fontWeight: "300", color: "#808080" }}>
+              <h3
+                style={{
+                  fontSize: fonts.pequeno,
+                  fontWeight: "300",
+                  color: "#808080",
+                }}
+              >
                 {e.title}
               </h3>
-              <p style={{ fontSize: 25, fontWeight: "500", marginTop: -8 }}>
+              <p
+                style={{
+                  fontSize: fonts.grande,
+                  fontWeight: "500",
+                  marginTop: -8,
+                }}
+              >
                 {String(e.total).padStart(2, "0")}
               </p>
             </span>
           ))}
         </div>
-        <h2>Dashboard</h2>
+        <h2 style={{ fontSize: fonts.grande }}>Dashboard</h2>
       </div>
 
       <div
@@ -300,14 +313,22 @@ function Home() {
           height: "100%",
           flexDirection: "column",
           overflowY: "auto",
-          alignItems: "center",
+          padding: "10px 10px",
+          gap: 10
         }}
       >
-
         <TimelineDemo d={dadosFuncionarios} />
 
-
-        <div style={{ display: "flex", gap: "5%", width: "100%" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: "5%",
+            width: "40%",
+            backgroundColor: cors.white,
+            border: `1px solid ${cors.border}`,
+            borderRadius: 20
+          }}
+        >
           <div style={{ width: "100%", padding: 20 }}>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               <p style={{ fontSize: 15, fontWeight: "400", color: "#808080" }}>
@@ -327,7 +348,7 @@ function Home() {
               </select>
             </div>
             <br />
-            <div style={{ width: "100%", height: 200 }}>
+            <div style={{ width: "100%", height: 160 }}>
               <ResponsiveContainer>
                 <BarChart data={resultado} margin={{ top: 20 }}>
                   <XAxis
@@ -359,7 +380,6 @@ function Home() {
             title={"Trabalhando hoje"}
           />
         </div> */}
-
       </div>
     </div>
   );

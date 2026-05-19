@@ -1,5 +1,6 @@
 import { GoGear, GoHome, GoPeople, GoTable } from "react-icons/go";
 import ButtonNavSideBar from "./buttonNavSidebar";
+import { cors } from '../global/cors'
 
 function Sidebar() {
   const routers = [
@@ -13,15 +14,14 @@ function Sidebar() {
     <div
       style={{
         display: "flex",
-        padding: "20px 15px",
-        backgroundColor: "#ffffff",
-        // width: "15%",
+        padding: "10px",
+        backgroundColor: cors.black,
         flexDirection: "column",
         gap: 20,
         borderRight: '1px solid #f1f1f1'
       }}
     >
-      <h2 style={{ color: "#2b2b2b",  }}>Sys-dom</h2>
+      <h2 style={{ color: cors.text, fontSize: 20 }}>Sys-dom</h2>
       <nav
         style={{
           display: "flex",

@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { cors } from '../global/cors'
 
 export default function ButtonNavSideBar({ data }) {
   const Icon = data.icon;
@@ -13,12 +14,14 @@ export default function ButtonNavSideBar({ data }) {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 10,
-            padding: "5px 10px",
+            gap: 8,
+            padding: "5px 15px",
+            backgroundColor: isActive && cors.fundo,
+            borderRadius: 5,
           }}
         >
-          <Icon color={isActive ? "#007bff" : "#a5a5a5"} fontSize={20} />
-          <p style={{ fontSize: 15, color: isActive ? "#007bff" : "#a5a5a5" }}>
+          <Icon color={isActive ? cors.text : cors.text} fontSize={14} weight={"bold"}/>
+          <p style={{ fontSize: 12, color: isActive ? cors.text : cors.text, fontWeight: '400' }}>
             {data.title}
           </p>
         </div>
