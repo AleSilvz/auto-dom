@@ -61,11 +61,16 @@ export default function TabelaMes({ dados }) {
       return {
         funcao,
         pessoas: lista.filter((l) =>
-          l.colab.trabalha?.some((c) => c === list[mesSelecionado]),
+          l.colab.trabalha?.includes(list[mesSelecionado]),
+        ),
+        folgando: lista.filter(
+          (l) => !l.colab.trabalha?.includes(list[mesSelecionado]),
         ),
       };
     },
   );
+
+  console.log(trabalhando);
 
   if (!dados || !mesesOrdenados.length || !p) {
     return (
@@ -112,7 +117,7 @@ export default function TabelaMes({ dados }) {
       )
       .join(" ");
   }
-  console.log(dados)
+  console.log(dados);
   return (
     <div
       style={{
@@ -198,7 +203,7 @@ export default function TabelaMes({ dados }) {
             <h1
               style={{
                 color: cors.text,
-                fontSize: fonts.grande,
+                fontSize: fonts.medio,
                 color: cors.white,
               }}
             >
@@ -207,7 +212,7 @@ export default function TabelaMes({ dados }) {
             <h1
               style={{
                 color: cors.text,
-                fontSize: fonts.grande,
+                fontSize: fonts.medio,
                 color: cors.white,
               }}
             >
@@ -215,23 +220,167 @@ export default function TabelaMes({ dados }) {
             </h1>
           </div>
 
-          {e.pessoas.map((p, i) => (
-            <div
+          <div style={{ display: "flex" }}>
+            <table
               style={{
-                padding: "10px 20px",
-                border: `1px solid ${cors.border}`,
-                display: 'flex',
-                gap: 20
+                width: "65%",
+                borderCollapse: "collapse",
               }}
             >
-              <p style={{ fontSize: fonts.medio }}>
-                {capitalizarNome(p.colab.colaborador.colaborador)}
-              </p>
-              <p style={{ fontSize: fonts.medio }}>
-                {p.colab.colaborador.horario.entrada}
-              </p>
-            </div>
-          ))}
+              <thead>
+                <tr
+                  style={{
+                    backgroundColor: "#f7f7f7",
+                    border: `1px solid ${cors.border}`,
+                  }}
+                >
+                  <th
+                    style={{
+                      textAlign: "left",
+                      padding: "12px",
+                      fontWeight: "500",
+                    }}
+                  >
+                    COLABORADORES
+                  </th>
+
+                  <th
+                    style={{
+                      textAlign: "left",
+                      padding: "12px",
+                      fontWeight: "500",
+                      borderLeft: `1px solid ${cors.border}`,
+                    }}
+                  >
+                    HORÁRIO
+                  </th>
+
+                  <th
+                    style={{
+                      textAlign: "left",
+                      padding: "12px",
+                      fontWeight: "500",
+                      borderLeft: `1px solid ${cors.border}`,
+                    }}
+                  >
+                    FOLGAS FIXAS
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {e.pessoas.map((p, i) => (
+                  <tr
+                    key={i}
+                    style={{
+                      borderBottom: `1px solid ${cors.border}`,
+                      borderLeft: `1px solid ${cors.border}`,
+                      borderRight: `1px solid ${cors.border}`,
+                    }}
+                  >
+                    <td
+                      style={{
+                        padding: "12px",
+                        fontSize: fonts.pequeno,
+                        borderRight: `1px solid ${cors.border}`,
+                      }}
+                    >
+                      {String(
+                        capitalizarNome(p.colab.colaborador.colaborador),
+                      ).toLocaleUpperCase()}
+                    </td>
+
+                    <td
+                      style={{
+                        padding: "12px",
+                        borderRight: `1px solid ${cors.border}`,
+                        fontSize: fonts.pequeno,
+                      }}
+                    >
+                      {p.colab.colaborador.horario.entrada} ÀS{" "}
+                      {p.colab.colaborador.horario.entradaIntervalo} /{" "}
+                      {p.colab.colaborador.horario.saidaIntervalo} ÀS{" "}
+                      {p.colab.colaborador.horario.saida}
+                    </td>
+
+                    <td style={{ padding: "12px", fontSize: fonts.pequeno }}>
+                      {String(
+                        p.colab.colaborador.folgaFixa,
+                      ).toLocaleUpperCase()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            <table
+              style={{
+                width: "35%",
+                borderCollapse: "collapse",
+              }}
+            >
+              <thead>
+                <tr
+                  style={{
+                    backgroundColor: "#f7f7f7",
+                    border: `1px solid ${cors.border}`,
+                  }}
+                >
+                  <th
+                    style={{
+                      textAlign: "left",
+                      padding: "12px",
+                      fontWeight: "500",
+                      borderLeft: `1px solid ${cors.border}`,
+                    }}
+                  >
+                    FOLGANDO
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {e.folgando.length > 0
+                  ? e.folgando.map((p, i) => (
+                      <tr
+                        key={i}
+                        style={{
+                          borderBottom: `1px solid ${cors.border}`,
+                          borderLeft: `1px solid ${cors.border}`,
+                          borderRight: `1px solid ${cors.border}`,
+                        }}
+                      >
+                        <td
+                          style={{ padding: "12px", fontSize: fonts.pequeno }}
+                        >
+                          {String(
+                            p.colab.colaborador.colaborador,
+                          ).toLocaleUpperCase()}
+                        </td>
+                      </tr>
+                    ))
+                  : Array.from({ length: e.pessoas.length }).map(() => (
+                      <tr
+                        style={{
+                          borderBottom: `1px solid ${cors.border}`,
+                          borderLeft: `1px solid ${cors.border}`,
+                          borderRight: `1px solid ${cors.border}`,
+                        }}
+                      >
+                        <td
+                          style={{
+                            padding: "12px",
+                            fontSize: fonts.pequeno,
+                            opacity: 0.6,
+                          }}
+                        >
+                          {""}
+                        </td>
+                      </tr>
+                    ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       ))}
     </div>

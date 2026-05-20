@@ -27,7 +27,7 @@ export default async function dadosEscalas() {
 
             return acc
         }, {})
-
+ 
         return d
     } catch (error) {
         console.error(error);
