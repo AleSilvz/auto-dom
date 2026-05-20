@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
-import TabelaEscalasDomingos from "../components/TabelaEscalasDomingos";
 import { db } from "../firebaseConfig";
 import dadosColaboradores from "../components/function/dadosColaboradores";
 import dadosEscalas from "../components/function/dadosEscalas";
@@ -8,6 +7,7 @@ import Step1 from "../components/primeiroAcesso/Step1";
 import { CircularProgress } from "@mui/material";
 import Step2 from "../components/primeiroAcesso/Step2";
 import TabelaMes from "../components/primeiroAcesso/tabelaMes";
+import { cors } from '../global/cors'
 
 function Escalas() {
   const [primeiroAcesso, setPrimeiroAcesso] = useState(null);
@@ -85,7 +85,7 @@ function Escalas() {
   }
 
   return (
-    <div style={{ width: "100%", height: "100%", padding: "20px" }}>
+    <div style={{ width: "100%", height: "100%", padding: "10px", backgroundColor: cors.background}}>
       {primeiroAcesso ? steps[passos] : <TabelaMes dados={escalas}/>}
     </div>
   );

@@ -331,12 +331,12 @@ function Home() {
         >
           <div style={{ width: "100%", padding: 20 }}>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <p style={{ fontSize: 15, fontWeight: "400", color: "#808080" }}>
+              <p style={{ fontSize: fonts.pequeno, fontWeight: "400", color: "#808080" }}>
                 Folgando na Semana
               </p>
 
               <select
-                style={{ padding: 5, userSelect: "none", outline: "none" }}
+                style={{ padding: 5, userSelect: "none", outline: "none", fontSize: fonts.pequeno }}
                 onClick={(e) => setCurrentSelect(e.target.value)}
               >
                 <option value="Todos">Todos</option>
@@ -353,7 +353,7 @@ function Home() {
                 <BarChart data={resultado} margin={{ top: 20 }}>
                   <XAxis
                     dataKey="title"
-                    fontSize={15}
+                    fontSize={fonts.pequeno}
                     style={{ padding: 15 }}
                   />
 
@@ -361,7 +361,7 @@ function Home() {
                     <LabelList
                       dataKey="total"
                       position="top"
-                      style={{ fontSize: 12 }}
+                      style={{ fontSize: fonts.pequeno }}
                     />
                   </Bar>
                 </BarChart>

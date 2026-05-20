@@ -108,7 +108,7 @@ export default function TimelineDemo({ d }) {
 
             return (
               <div style={{ zIndex: 1, gridColumn: `1 / ${totalColunas + 1}` }}>
-                <p style={{ left: 10, position: "relative", marginBottom: 10 }}>
+                <p style={{ left: 10, position: "relative", marginBottom: 10, fontSize: fonts.pequeno }}>
                   {capitalizarNome(e.colaborador)}
                 </p>
 
