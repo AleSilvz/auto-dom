@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { CircularProgress } from "@mui/material";
+
 import Title from "../../../components/authentication/title";
 import InputEmail from "../../../components/authentication/inputEmail";
 import InputPassword from "../../../components/authentication/inputPassword";
@@ -26,7 +28,7 @@ export default function SignUp() {
         displayName: name,
       });
 
-      alert("Criado com sucesso!");
+      
     } catch (error) {
       console.error(error);
     }
@@ -46,7 +48,7 @@ export default function SignUp() {
 
         <div style={{ gap: 15, display: "flex", flexDirection: "column" }}>
           <InputEmail
-            t={"Name"}
+            t={"First name"}
             p={"Name"}
             value={name}
             onChange={(e) => setName(e.target.value.trim())}
@@ -62,7 +64,6 @@ export default function SignUp() {
             onChange={(e) => setPassword(e.target.value.trim())}
           />
         </div>
-
         <Button t={"sign up"} onClick={CreateAccount} />
         <LoginOrSignUp t={"Already have a account?"} p={"Login."} to={"/"} />
       </div>

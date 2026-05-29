@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Title from "../../../components/authentication/title";
 import InputEmail from "../../../components/authentication/inputEmail";
 import InputPassword from "../../../components/authentication/inputPassword";
 import Button from "../../../components/authentication/button";
 import LoginOrSignUp from "../../../components/authentication/loginOrSignUp";
+import { CircularProgress } from "@mui/material";
 import "./style.css";
+import { Alert } from "@mui/material";
 
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../../firebaseConfig";
@@ -13,15 +15,51 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState(false);
+  const [userNot, setUserNot] = useState(false);
+  const [err, setErr] = useState("");
+
+  const [sucess, setSucess] = useState(false);
+
+  const validation = !loading ? (
+    "login"
+  ) : (
+    <CircularProgress color="#ffffff" size={22} />
+  );
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAlert(false);
+      setUserNot(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [alert, err]);
+
   async function userLogin() {
+    if (email === "" || password === "") {
+      setLoading(true);
+
+      const timer = setTimeout(() => {
+        setLoading(false);
+        setAlert(true);
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+
     try {
       await signInWithEmailAndPassword(auth, email, password);
-
-      alert("Logado!");
+      setSucess(true);
     } catch (error) {
-      console.log(error);
+      setUserNot(true);
+      setErr(error.code);
+      // console.log(error);
     }
   }
+
+  console.log(err);
 
   return (
     <div className="login-b">
@@ -51,13 +89,48 @@ export default function Login() {
           </p>
         </div>
 
-        <Button t={"login"} onClick={userLogin} />
+        <Button t={validation} onClick={userLogin} />
         <LoginOrSignUp
           t={"Don’t have an account?"}
           p={"Sign up."}
           to={"signup"}
         />
       </div>
+
+      {alert && (
+        <Alert
+          hidden={alert}
+          severity="warning"
+          onClose={() => {
+            setAlert(false);
+          }}
+          style={{ position: "absolute", top: 10, right: 10 }}
+        >
+          Please fill in all the information!
+        </Alert>
+      )}
+
+      {/* {s && (
+        <Alert
+          hidden={alert}
+          severity="success"
+          onClose={() => setAlert(false)}
+          style={{ position: "absolute", top: 10, right: 10 }}
+        >
+          Logged in successfully!
+        </Alert>
+      )} */}
+
+      {userNot && (
+        <Alert
+          hidden={alert}
+          severity="error"
+          onClose={() => setUserNot(false)}
+          style={{ position: "absolute", top: 10, right: 10 }}
+        >
+          {err}
+        </Alert>
+      )}
     </div>
   );
 }

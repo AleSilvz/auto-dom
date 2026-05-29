@@ -13,6 +13,9 @@ export default function Button({ t, onClick }) {
         cursor: "pointer",
         borderRadius: 10,
         fontSize: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
+        display: 'flex'
       }}
     >
       {t}
