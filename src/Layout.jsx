@@ -7,7 +7,6 @@ function Layout() {
       <Sidebar />
 
       <div style={{ flex: 1 }}>
-        
         <Outlet />
       </div>
     </div>

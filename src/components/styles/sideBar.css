@@ -1,0 +1,30 @@
+.sidebar-b {
+    display: flex;
+    background-color: black;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sidebar-user-d{
+    width: 100%;
+    color: #f0f0f0;
+    border-bottom: 1px solid #f0f0f0;
+    padding: 10px 20px;
+}
+
+.sidebar-hello {
+    font-size: 14px;
+    margin-bottom: -6px;
+    font-weight: 200;
+}
+
+.user-name {
+    font-size: 16px;
+}
+
+.sidebar-content {
+    display: flex;
+    flex-direction: column;
+    padding: 0px 20px;
+    gap: 16px;
+}

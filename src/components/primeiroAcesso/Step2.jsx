@@ -1,7 +1,7 @@
 import { Alert, Button } from "@mui/material";
 import Tabela from "./tabela";
 import { useEffect, useState } from "react";
-import { addDoc, collection, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
+import { addDoc, collection, doc, getDocs, setDoc } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
 
 export default function Step2({ onNext, onBack, data, update }) {

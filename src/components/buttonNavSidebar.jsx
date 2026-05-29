@@ -1,13 +1,17 @@
 import { NavLink } from "react-router-dom";
-import { cors } from '../global/cors'
+import { cors } from "../global/cors";
 
-export default function ButtonNavSideBar({ data }) {
+import "./styles/buttonNavSidebar.css";
+
+export default function ButtonNavSideBar({ data, i }) {
   const Icon = data.icon;
   return (
     <NavLink
+      key={i}
+      className="buttonNavSideBar-b"
       to={data.to}
       title={data.title}
-      style={{ color: "inherit", textDecoration: "none" }}
+      end={data.to === "/app"}
     >
       {({ isActive }) => (
         <div
@@ -20,8 +24,17 @@ export default function ButtonNavSideBar({ data }) {
             borderRadius: 5,
           }}
         >
-          <Icon color={isActive ? cors.text : cors.text} fontSize={14} weight={"bold"}/>
-          <p style={{ fontSize: 12, color: isActive ? cors.text : cors.text, fontWeight: '400' }}>
+          <Icon
+            color={isActive ? cors.text : 'gray'}
+            fontSize={18}
+          />
+          <p
+            style={{
+              fontSize: 15,
+              color: isActive ? cors.text : "gray",
+              fontWeight: "600",
+            }}
+          >
             {data.title}
           </p>
         </div>
