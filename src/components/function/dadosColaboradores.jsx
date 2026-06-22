@@ -6,8 +6,9 @@ export default async function dadosColaboradores() {
     const docRef = collection(db, "colaboradores");
     const dados = await getDocs(docRef);
 
-    return dados.docs.map((e) => e.data());
+    return dados.docs.map((e) => ({ uid: e.id, col: e.data() }));
   } catch (error) {
     console.error(error);
+    return [];
   }
 }

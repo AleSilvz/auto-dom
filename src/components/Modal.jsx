@@ -1,4 +1,4 @@
-export default function Modal({ show }) {
+export default function Modal({ show, children }) {
   return (
     show && (
       <div
@@ -13,7 +13,9 @@ export default function Modal({ show }) {
           alignItems: "center",
           justifyContent: "center",
         }}
-      ></div>
+      >
+        {children}
+      </div>
     )
   );
 }

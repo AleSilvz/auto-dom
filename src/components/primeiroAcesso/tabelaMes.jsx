@@ -2,10 +2,32 @@ import { useState, useEffect } from "react";
 import { CircularProgress } from "@mui/material";
 import TabelaDomingoAnual from "../TabelaDomingoAnual";
 import { cors, fonts } from "../../global/cors";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../../firebaseConfig";
+import Modal from "../Modal";
 
 export default function TabelaMes({ dados }) {
   const [current, setCurrent] = useState(0);
   const [mesSelecionado, setMesSelecionado] = useState(0);
+  const [colaborador, setColaborador] = useState({});
+  const [mo, setMo] = useState(false);
+
+  if (!dados?.length) {
+    return (
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          padding: "20px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <CircularProgress aria-label="Loading…" color="#000000" />
+      </div>
+    );
+  }
 
   const mesAtual = new Date().toLocaleDateString("pt-BR", { month: "long" });
 
@@ -24,75 +46,53 @@ export default function TabelaMes({ dados }) {
     "dezembro",
   ];
 
-  const mesesOrdenados = Object.entries(dados)
-    .sort(([mesA], [mesB]) => {
-      const indexA = ordemMeses.indexOf(mesA);
-      const indexB = ordemMeses.indexOf(mesB);
+  const agrupar = dados.reduce((acc, item) => {
+    const [, mes] = item.uid.split("-");
+    const nomeMes = ordemMeses[mes - 1];
+    if (!acc[nomeMes]) {
+      acc[nomeMes] = [];
+    }
+
+    acc[nomeMes].push({
+      ...item,
+      data: item.data.reduce((grupos, registro) => {
+        const funcao = registro.colaborador.funcao;
+
+        if (!grupos[funcao]) {
+          grupos[funcao] = [];
+        }
+
+        grupos[funcao].push(registro);
+
+        return grupos;
+      }, {}),
+    });
+
+    return acc;
+  }, {});
+
+  const mesesOrdenados = Object.entries(agrupar)
+    .sort(([a], [b]) => {
+      const indexA = ordemMeses.indexOf(a);
+      const indexB = ordemMeses.indexOf(b);
+
       return indexA - indexB;
     })
-    .map(([mes, valor]) => ({
-      mes,
-      ...valor,
+    .map(([key, valor]) => ({
+      mes: key,
+      dados: valor,
     }));
 
-  useEffect(() => {
-    const indexInicial = mesesOrdenados.findIndex(
-      (m) => m.mes.toLowerCase() === mesAtual,
-    );
+  const mm = mesesOrdenados[current];
 
-    if (indexInicial !== -1) {
-      setCurrent(indexInicial);
-    }
-  }, []);
-
-  const p = mesesOrdenados[current];
-  const mes = String(p?.mes).charAt(0).toUpperCase() + String(p?.mes).slice(1);
-
-  const list = p?.domingos?.map((domingo) => {
-    const dom = domingo.toDate().toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-    });
-    return dom;
-  });
-
-  const trabalhando = Object.entries(p?.funcoes || {}).map(
-    ([funcao, lista]) => {
-      return {
-        funcao,
-        pessoas: lista.filter((l) =>
-          l.colab.trabalha?.includes(list[mesSelecionado]),
-        ),
-        folgando: lista.filter(
-          (l) => !l.colab.trabalha?.includes(list[mesSelecionado]),
-        ),
-      };
-    },
-  );
-
-  console.log(trabalhando);
-
-  if (!dados || !mesesOrdenados.length || !p) {
-    return (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          padding: "20px",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <CircularProgress aria-label="Loading…" />;
-      </div>
-    );
-  }
+  const nomeDoMes =
+    String(mm.mes).charAt(0).toUpperCase() + String(mm.mes).slice(1);
 
   const proximo = () => {
     setMesSelecionado(0);
     setCurrent((prev) => (prev + 1) % mesesOrdenados.length);
   };
+
   const anterior = () => {
     setMesSelecionado(0);
     setCurrent(
@@ -117,7 +117,7 @@ export default function TabelaMes({ dados }) {
       )
       .join(" ");
   }
-  console.log(dados);
+
   return (
     <div
       style={{
@@ -144,7 +144,7 @@ export default function TabelaMes({ dados }) {
         >
           voltar
         </button>
-        <h1 style={{ fontSize: fonts.grande }}>{mes}</h1>
+        <h1 style={{ fontSize: fonts.grande }}>{nomeDoMes}</h1>
         <button
           style={{
             padding: "5px 15px",
@@ -169,7 +169,7 @@ export default function TabelaMes({ dados }) {
           padding: 5,
         }}
       >
-        {list?.map((domingo, i) => (
+        {mm?.dados.map((domingo, i) => (
           <p
             key={i}
             style={{
@@ -182,207 +182,242 @@ export default function TabelaMes({ dados }) {
             }}
             onClick={() => setMesSelecionado(() => i)}
           >
-            {domingo}
+            {domingo.uid}
           </p>
         ))}
       </div>
 
-      {trabalhando.map((e) => (
-        <div>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
+      {Object.entries(mm.dados[mesSelecionado].data).map(
+        ([funcao, element]) => {
+          const colaboradoresFiltrados = Object.values(
+            mm.dados[mesSelecionado].folga,
+          ).filter((item) => item.colaborador.funcao === funcao);
 
-              backgroundColor: cors.text,
-              padding: "10px 20px",
-              borderRadius: "10px 10px 0 0",
-              border: `1px solid ${cors.border}`,
-            }}
-          >
-            <h1
-              style={{
-                color: cors.text,
-                fontSize: fonts.medio,
-                color: cors.white,
-              }}
-            >
-              {e.funcao}
-            </h1>
-            <h1
-              style={{
-                color: cors.text,
-                fontSize: fonts.medio,
-                color: cors.white,
-              }}
-            >
-              {String(e.pessoas.length).padStart(2, "0")}
-            </h1>
-          </div>
+          return (
+            <div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
 
-          <div style={{ display: "flex" }}>
-            <table
-              style={{
-                width: "65%",
-                borderCollapse: "collapse",
-              }}
-            >
-              <thead>
-                <tr
+                  backgroundColor: cors.text,
+                  padding: "10px 20px",
+                  borderRadius: "10px 10px 0 0",
+                  border: `1px solid ${cors.border}`,
+                }}
+              >
+                <h1
                   style={{
-                    backgroundColor: "#f7f7f7",
-                    border: `1px solid ${cors.border}`,
+                    color: cors.text,
+                    fontSize: fonts.medio,
+                    color: cors.white,
                   }}
                 >
-                  <th
-                    style={{
-                      textAlign: "left",
-                      padding: "12px",
-                      fontWeight: "500",
-                    }}
-                  >
-                    COLABORADORES
-                  </th>
-
-                  <th
-                    style={{
-                      textAlign: "left",
-                      padding: "12px",
-                      fontWeight: "500",
-                      borderLeft: `1px solid ${cors.border}`,
-                    }}
-                  >
-                    HORÁRIO
-                  </th>
-
-                  <th
-                    style={{
-                      textAlign: "left",
-                      padding: "12px",
-                      fontWeight: "500",
-                      borderLeft: `1px solid ${cors.border}`,
-                    }}
-                  >
-                    FOLGAS FIXAS
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {e.pessoas.map((p, i) => (
-                  <tr
-                    key={i}
-                    style={{
-                      borderBottom: `1px solid ${cors.border}`,
-                      borderLeft: `1px solid ${cors.border}`,
-                      borderRight: `1px solid ${cors.border}`,
-                    }}
-                  >
-                    <td
-                      style={{
-                        padding: "12px",
-                        fontSize: fonts.pequeno,
-                        borderRight: `1px solid ${cors.border}`,
-                      }}
-                    >
-                      {String(
-                        capitalizarNome(p.colab.colaborador.colaborador),
-                      ).toLocaleUpperCase()}
-                    </td>
-
-                    <td
-                      style={{
-                        padding: "12px",
-                        borderRight: `1px solid ${cors.border}`,
-                        fontSize: fonts.pequeno,
-                      }}
-                    >
-                      {p.colab.colaborador.horario.entrada} ÀS{" "}
-                      {p.colab.colaborador.horario.entradaIntervalo} /{" "}
-                      {p.colab.colaborador.horario.saidaIntervalo} ÀS{" "}
-                      {p.colab.colaborador.horario.saida}
-                    </td>
-
-                    <td style={{ padding: "12px", fontSize: fonts.pequeno }}>
-                      {String(
-                        p.colab.colaborador.folgaFixa,
-                      ).toLocaleUpperCase()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            <table
-              style={{
-                width: "35%",
-                borderCollapse: "collapse",
-              }}
-            >
-              <thead>
-                <tr
+                  {funcao}
+                </h1>
+                <h1
                   style={{
-                    backgroundColor: "#f7f7f7",
-                    border: `1px solid ${cors.border}`,
+                    color: cors.text,
+                    fontSize: fonts.medio,
+                    color: cors.white,
                   }}
                 >
-                  <th
-                    style={{
-                      textAlign: "left",
-                      padding: "12px",
-                      fontWeight: "500",
-                      borderLeft: `1px solid ${cors.border}`,
-                    }}
-                  >
-                    FOLGANDO
-                  </th>
-                </tr>
-              </thead>
+                  {String(element.length).padStart(2, "0")}
+                </h1>
+              </div>
 
-              <tbody>
-                {e.folgando.length > 0
-                  ? e.folgando.map((p, i) => (
-                      <tr
-                        key={i}
+              <div style={{ display: "flex" }}>
+                <table
+                  style={{
+                    width: "65%",
+                    borderCollapse: "collapse",
+                  }}
+                >
+                  <thead>
+                    <tr
+                      style={{
+                        backgroundColor: "#f7f7f7",
+                        border: `1px solid ${cors.border}`,
+                      }}
+                    >
+                      <th
                         style={{
-                          borderBottom: `1px solid ${cors.border}`,
-                          borderLeft: `1px solid ${cors.border}`,
-                          borderRight: `1px solid ${cors.border}`,
+                          textAlign: "left",
+                          padding: "12px",
+                          fontWeight: "500",
                         }}
                       >
-                        <td
-                          style={{ padding: "12px", fontSize: fonts.pequeno }}
-                        >
-                          {String(
-                            p.colab.colaborador.colaborador,
-                          ).toLocaleUpperCase()}
-                        </td>
-                      </tr>
-                    ))
-                  : Array.from({ length: e.pessoas.length }).map(() => (
-                      <tr
+                        COLABORADORES
+                      </th>
+
+                      <th
                         style={{
-                          borderBottom: `1px solid ${cors.border}`,
+                          textAlign: "left",
+                          padding: "12px",
+                          fontWeight: "500",
                           borderLeft: `1px solid ${cors.border}`,
-                          borderRight: `1px solid ${cors.border}`,
                         }}
                       >
-                        <td
+                        HORÁRIO
+                      </th>
+
+                      <th
+                        style={{
+                          textAlign: "left",
+                          padding: "12px",
+                          fontWeight: "500",
+                          borderLeft: `1px solid ${cors.border}`,
+                        }}
+                      >
+                        FOLGAS FIXAS
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {element.map((p, i) => {
+                      const colaborador = p.colaborador;
+                      return (
+                        <tr
+                          onClick={() => {
+                            setColaborador(colaborador);
+                            setMo(!mo);
+                          }}
+                          key={i}
                           style={{
-                            padding: "12px",
-                            fontSize: fonts.pequeno,
-                            opacity: 0.6,
+                            borderBottom: `1px solid ${cors.border}`,
+                            borderLeft: `1px solid ${cors.border}`,
+                            borderRight: `1px solid ${cors.border}`,
                           }}
                         >
-                          {""}
-                        </td>
-                      </tr>
-                    ))}
-              </tbody>
-            </table>
-          </div>
+                          <td
+                            style={{
+                              padding: "12px",
+                              fontSize: fonts.pequeno,
+                              borderRight: `1px solid ${cors.border}`,
+                              cursor: "pointer",
+                            }}
+                          >
+                            {String(
+                              capitalizarNome(colaborador.colaborador),
+                            ).toLocaleUpperCase()}
+                          </td>
+
+                          <td
+                            style={{
+                              padding: "12px",
+                              borderRight: `1px solid ${cors.border}`,
+                              fontSize: fonts.pequeno,
+                            }}
+                          >
+                            {colaborador.horario.entrada} ÀS{" "}
+                            {colaborador.horario.entradaIntervalo} /{" "}
+                            {colaborador.horario.saidaIntervalo} ÀS{" "}
+                            {colaborador.horario.saida}
+                          </td>
+
+                          <td
+                            style={{ padding: "12px", fontSize: fonts.pequeno }}
+                          >
+                            {String(colaborador.folgaFixa).toLocaleUpperCase()}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+
+                <table
+                  style={{
+                    width: "35%",
+                    borderCollapse: "collapse",
+                  }}
+                >
+                  <thead>
+                    <tr
+                      style={{
+                        backgroundColor: "#f7f7f7",
+                        border: `1px solid ${cors.border}`,
+                      }}
+                    >
+                      <th
+                        style={{
+                          textAlign: "left",
+                          padding: "12px",
+                          fontWeight: "500",
+                          borderLeft: `1px solid ${cors.border}`,
+                        }}
+                      >
+                        FOLGANDO
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {colaboradoresFiltrados.length > 0
+                      ? colaboradoresFiltrados.map((item, index) => (
+                          <tr
+                            style={{
+                              borderBottom: `1px solid ${cors.border}`,
+                              borderLeft: `1px solid ${cors.border}`,
+                              borderRight: `1px solid ${cors.border}`,
+                            }}
+                          >
+                            <td
+                              style={{
+                                padding: "12px",
+                                fontSize: fonts.pequeno,
+                              }}
+                            >
+                              {capitalizarNome(
+                                item.colaborador.colaborador,
+                              ).toUpperCase()}
+                            </td>
+                          </tr>
+                        ))
+                      : Array.from({ length: element.length }).map(() => {
+                          console.log(element.length);
+                          return (
+                            <tr
+                              style={{
+                                borderBottom: `1px solid ${cors.border}`,
+                                borderLeft: `1px solid ${cors.border}`,
+                                borderRight: `1px solid ${cors.border}`,
+                              }}
+                            >
+                              <td
+                                style={{
+                                  padding: "12px",
+                                  fontSize: fonts.pequeno,
+                                }}
+                              >
+                                {""}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          );
+        },
+      )}
+
+      <Modal show={mo}>
+        <div
+          style={{
+            backgroundColor: "white",
+          }}
+        >
+          <button onClick={() => setMo(!mo)}>fechar</button>
+
+          <h3>
+            Colaborador:{" "}
+            {capitalizarNome(colaborador.colaborador).toLocaleUpperCase()}
+          </h3>
         </div>
-      ))}
+      </Modal>
     </div>
   );
 }

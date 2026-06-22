@@ -1,35 +1,52 @@
-import { collection, getDocs, doc } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
+import dadosColaboradores from "./dadosColaboradores";
 
 export default async function dadosEscalas() {
-    try {
-        const ano = new Date().getFullYear()
-        const docRef = collection(db, "escalas", String(ano), "meses");
-        const dados = await getDocs(docRef);
+  try {
+      const colaboradores = await dadosColaboradores();
 
-        const d = dados.docs.reduce((acc, item) => {
-            const j = item.data()
-            if (!acc[j.mes]) {
-                acc[j.mes] = {
-                    funcoes: {},
-                    domingos: j.domingos,
-                    id: item.id
-                }
-            }
+    const mapaColaboradores = Object.fromEntries(
+      colaboradores.map((c) => [c.uid, c.col]),
+    );
 
-            j.colaboradores.forEach((colab, index) => {
-                const funcao = colab.colaborador.funcao
-                if (!acc[j.mes].funcoes[funcao]) {
-                    acc[j.mes].funcoes[funcao] = [];
-                }
-                acc[j.mes].funcoes[funcao].push({ colab, index });
-            })
+    const docRef = collection(db, "escalas");
+    const dados = await getDocs(docRef);
 
-            return acc
-        }, {})
- 
-        return d
-    } catch (error) {
-        console.error(error);
+    const resultado = [];
+
+    for (const docSnap of dados.docs) {
+      const uid = docSnap.id;
+
+      const docCol = collection(db, "escalas", uid, "colaboradores");
+      const docF = collection(db, "escalas", uid, "folgando");
+
+      const [colaboradoresEscala, colaboradoresFolga] = await Promise.all([
+        getDocs(docCol),
+        getDocs(docF),
+      ]);
+
+      const data = colaboradoresEscala.docs.map((d) => ({
+        uid: d.id,
+        colaborador: mapaColaboradores[d.id],
+      }));
+
+      const folga = colaboradoresFolga.docs.map((d) => ({
+        uid: d.id,
+        colaborador: mapaColaboradores[d.id],
+      }));
+
+      resultado.push({
+        uid,
+        data,
+        folga,
+      });
     }
+
+    console.log("Escalas carregadas...");
+    return resultado;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
 }

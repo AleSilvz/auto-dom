@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, limit, query } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import dadosColaboradores from "../components/function/dadosColaboradores";
 import dadosEscalas from "../components/function/dadosEscalas";
@@ -7,37 +7,50 @@ import Step1 from "../components/primeiroAcesso/Step1";
 import { CircularProgress } from "@mui/material";
 import Step2 from "../components/primeiroAcesso/Step2";
 import TabelaMes from "../components/primeiroAcesso/tabelaMes";
-import { cors } from '../global/cors'
+import { cors } from "../global/cors";
 
 function Escalas() {
   const [primeiroAcesso, setPrimeiroAcesso] = useState(null);
   const [passos, setPassos] = useState(0);
   const [colaboradores, setColaboradores] = useState([]);
-  const [escalas, setEscalas] = useState({})
+  const [escalas, setEscalas] = useState({});
 
   const proximo = () => setPassos((prev) => prev + 1);
   const voltar = () => setPassos((prev) => prev - 1);
 
   async function verificacaoPrimeiroAcesso() {
     try {
-      const docRef = collection(db, "escalas");
-      const dados = (await getDocs(docRef)).empty;
-      setPrimeiroAcesso(dados);
+      const docRef = query(collection(db, "escalas"), limit(1));
+      const snapshot = await getDocs(docRef);
+      const primeiroAcesso = snapshot.empty;
+      setPrimeiroAcesso(primeiroAcesso);
+
       console.log("Primeiro:", primeiroAcesso);
 
-      const d = await dadosColaboradores();
-      const e = await dadosEscalas()
-      const grup = d.reduce((acc, item) => {
-        if (!acc[item.funcao]) {
-          acc[item.funcao] = [];
+      const [d, e] = await Promise.all([dadosColaboradores(), dadosEscalas()]);
+
+      const group = d.reduce((acc, e) => {
+        if (!acc[e.col.funcao]) {
+          acc[e.col.funcao] = [];
         }
 
-        acc[item.funcao].push({ item, domingoAtual: 0 });
+        const i = e.col;
+
+        acc[e.col.funcao].push({
+          uid: e.uid,
+          colaborador: i.colaborador,
+          sexo: i.sexo,
+          folgaFixa: i.folgaFixa,
+          horario: i.horario,
+          funcao: i.funcao,
+        });
+
         return acc;
       }, {});
 
-      setColaboradores(grup);
-      setEscalas(e)
+      setColaboradores(group);
+      setEscalas(e);
+      console.log("Carregando dados...");
     } catch (error) {
       console.error(error);
     }
@@ -54,7 +67,6 @@ function Escalas() {
         i === index ? { ...e, domingoAtual: Number(domingoAtual) } : e,
       ),
     }));
-    console.log(colaboradores[funcao]);
   }
 
   const steps = [
@@ -79,14 +91,22 @@ function Escalas() {
           alignItems: "center",
         }}
       >
-        <CircularProgress aria-label="Loading…" />;
+        <CircularProgress aria-label="Loading…" color="#000000" />
       </div>
     );
   }
 
   return (
-    <div style={{ width: "100%", height: "100%", padding: "10px", backgroundColor: cors.background}}>
-      {primeiroAcesso ? steps[passos] : <TabelaMes dados={escalas}/>}
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        padding: "10px",
+        backgroundColor: cors.background,
+        overflowY: "auto",
+      }}
+    >
+      {primeiroAcesso ? steps[passos] : <TabelaMes dados={escalas} />}
     </div>
   );
 }

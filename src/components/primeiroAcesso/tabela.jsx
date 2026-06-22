@@ -1,5 +1,4 @@
 export default function Tabela({ data, update }) {
-  console.log(data);
 
   function capitalizarNome(nome) {
     const excecoes = ["da", "de", "do", "das", "dos", "e"];
@@ -40,7 +39,7 @@ export default function Tabela({ data, update }) {
               padding: "10px 15px",
               borderRadius: 10,
               cursor: "pointer",
-              fontSize: 12
+              fontSize: 12,
             }}
             onClick={() => update(funcao, id, i + 1)}
           >
@@ -96,10 +95,10 @@ export default function Tabela({ data, update }) {
                   (ev.currentTarget.style.background = "transparent")
                 }
               >
-                <td style={tdStyle}>{capitalizarNome(e.item.colaborador)}</td>
-                <td style={tdStyle}>{e.item.funcao}</td>
-                <td style={tdStyle}>{e.item.folgaFixa}</td>
-                <td style={tdStyle}>{e.item.horario?.entrada}</td>
+                <td style={tdStyle}>{capitalizarNome(e.colaborador)}</td>
+                <td style={tdStyle}>{e.funcao}</td>
+                <td style={tdStyle}>{e.folgaFixa}</td>
+                <td style={tdStyle}>{e.horario?.entrada}</td>
                 <td>
                   {/* <input
                     type="number"
@@ -107,7 +106,7 @@ export default function Tabela({ data, update }) {
                     max={3}
                     onChange={(e) => update(key, index, e.target.value)}
                   /> */}
-                  {e.item.sexo === "Masculino"
+                  {e.sexo === "Masculino"
                     ? selecionar(3, e.domingoAtual, key, index)
                     : selecionar(2, e.domingoAtual, key, index)}
                 </td>
