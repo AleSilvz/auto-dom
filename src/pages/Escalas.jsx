@@ -76,6 +76,7 @@ function Escalas() {
       onBack={voltar}
       data={colaboradores}
       update={domingoAtual}
+      atualizar={verificacaoPrimeiroAcesso}
     />,
   ];
 

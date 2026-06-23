@@ -107,7 +107,7 @@ export default function TabelaMes({ dados }) {
 
   function capitalizarNome(nome) {
     const excecoes = ["da", "de", "do", "das", "dos", "e"];
-    return nome
+    return String(nome)
       .toLowerCase()
       .split(" ")
       .map((palavra) =>
@@ -375,10 +375,11 @@ export default function TabelaMes({ dados }) {
                             </td>
                           </tr>
                         ))
-                      : Array.from({ length: element.length }).map(() => {
-                          console.log(element.length);
+                      : Array.from({ length: element.length }).map((_, i) => {
+                          
                           return (
                             <tr
+                              key={i}
                               style={{
                                 borderBottom: `1px solid ${cors.border}`,
                                 borderLeft: `1px solid ${cors.border}`,

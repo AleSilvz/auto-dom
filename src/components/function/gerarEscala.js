@@ -7,7 +7,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 
-export async function GerarEscala(date, dados) {
+export async function GerarEscala(date, dados, atualizar) {
   // console.log("GerarEscala:", dados)
 
   if (!date.ano) {
@@ -127,6 +127,7 @@ export async function GerarEscala(date, dados) {
             }
           }
         }
+        atualizar();
       } catch (error) {
         console.error(error);
       }

@@ -5,7 +5,7 @@ import { addDoc, collection, doc, getDocs, setDoc } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
 import { GerarEscala } from "../../components/function/gerarEscala";
 
-export default function Step2({ onNext, onBack, data, update }) {
+export default function Step2({ onNext, onBack, data, update, atualizar }) {
   const [onAlert, setOnAlert] = useState(false);
   const [list, setList] = useState([]);
   const [dataDom, setDataDom] = useState({});
@@ -48,7 +48,7 @@ export default function Step2({ onNext, onBack, data, update }) {
         <Button
           variant="contained"
           style={{ fontWeight: "600" }}
-          onClick={() => GerarEscala(dataDom, list)}
+          onClick={() => GerarEscala(dataDom, list, atualizar)}
         >
           Gerar escalas
         </Button>
