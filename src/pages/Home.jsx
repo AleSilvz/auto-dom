@@ -5,9 +5,12 @@ import { BarChart, Bar, XAxis, ResponsiveContainer, LabelList } from "recharts";
 import TabelaTrabalhando from "../components/tabelaTabalhando";
 import TimelineDemo from "../components/TimelineDemo";
 import { fonts, cors } from "../global/cors";
+import DivHoje from "../components/DivHoje";
+import DragDiv from "../components/DragDiv";
 
 function Home() {
   const [currentSelect, setCurrentSelect] = useState("Todos");
+  const [modal, setModal] = useState([]);
   const [dadosFuncionarios, setDadosFuncionarios] = useState({
     resumo: [
       { title: "Total", total: 0 },
@@ -129,6 +132,27 @@ function Home() {
     folgandoHoje: [],
     trabalhandoHoje: [],
   });
+
+  function adicinarModal(funcao, t, f) {
+    const existe = modal.some((m) => m.funcao === funcao);
+
+    if (existe) return;
+
+    setModal((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        funcao,
+        t,
+        f
+      },
+    ]);
+    console.log(modal);
+  }
+
+  function removerModal(id) {
+    setModal((prev) => prev.filter((m) => m.id !== id));
+  }
 
   const mapaDias = {
     Domingo: "Dom",
@@ -261,6 +285,7 @@ function Home() {
         height: "100%",
         flexDirection: "column",
         backgroundColor: cors.background,
+        position: "relative",
       }}
     >
       <div
@@ -314,7 +339,7 @@ function Home() {
           flexDirection: "column",
           overflowY: "auto",
           padding: "10px 10px",
-          gap: 10
+          gap: 10,
         }}
       >
         <TimelineDemo d={dadosFuncionarios} />
@@ -322,65 +347,78 @@ function Home() {
         <div
           style={{
             display: "flex",
-            gap: "5%",
-            width: "40%",
-            backgroundColor: cors.white,
-            border: `1px solid ${cors.border}`,
-            borderRadius: 20
+            gap: 10,
           }}
         >
-          <div style={{ width: "100%", padding: 20 }}>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <p style={{ fontSize: fonts.pequeno, fontWeight: "400", color: "#808080" }}>
-                Folgando na Semana
-              </p>
+          <DivHoje dados={dadosFuncionarios} m={adicinarModal} />
 
-              <select
-                style={{ padding: 5, userSelect: "none", outline: "none", fontSize: fonts.pequeno }}
-                onClick={(e) => setCurrentSelect(e.target.value)}
-              >
-                <option value="Todos">Todos</option>
-                {funcaoF.map((e, i) => (
-                  <option key={i} value={e}>
-                    {e}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <br />
-            <div style={{ width: "100%", height: 160 }}>
-              <ResponsiveContainer>
-                <BarChart data={resultado} margin={{ top: 20 }}>
-                  <XAxis
-                    dataKey="title"
-                    fontSize={fonts.pequeno}
-                    style={{ padding: 15 }}
-                  />
+          <div
+            style={{
+              display: "flex",
+              gap: "5%",
+              width: "40%",
+              backgroundColor: cors.white,
+              border: `1px solid ${cors.border}`,
+              borderRadius: 20,
+            }}
+          >
+            <div style={{ width: "100%", padding: 20 }}>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <p
+                  style={{
+                    fontSize: fonts.pequeno,
+                    fontWeight: "400",
+                    color: "#808080",
+                  }}
+                >
+                  Folgando na Semana
+                </p>
 
-                  <Bar dataKey="total" fill="#000000">
-                    <LabelList
-                      dataKey="total"
-                      position="top"
-                      style={{ fontSize: fonts.pequeno }}
+                <select
+                  style={{
+                    padding: 5,
+                    userSelect: "none",
+                    outline: "none",
+                    fontSize: fonts.pequeno,
+                  }}
+                  onClick={(e) => setCurrentSelect(e.target.value)}
+                >
+                  <option value="Todos">Todos</option>
+                  {funcaoF.map((e, i) => (
+                    <option key={i} value={e}>
+                      {e}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <br />
+              <div style={{ width: "100%", height: 160 }}>
+                <ResponsiveContainer>
+                  <BarChart data={resultado} margin={{ top: 20 }}>
+                    <XAxis
+                      dataKey="title"
+                      fontSize={fonts.pequeno}
+                      style={{ padding: 15 }}
                     />
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+
+                    <Bar dataKey="total" fill="#000000">
+                      <LabelList
+                        dataKey="total"
+                        position="top"
+                        style={{ fontSize: fonts.pequeno }}
+                      />
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
         </div>
-
-        {/* <div style={{ gap: 20, display: "flex", flexDirection: "column" }}>
-          <TabelaTrabalhando
-            data={dadosFuncionarios?.folgandoHoje}
-            title={"Folgando hoje"}
-          />
-          <TabelaTrabalhando
-            data={dadosFuncionarios?.trabalhandoHoje}
-            title={"Trabalhando hoje"}
-          />
-        </div> */}
       </div>
+
+      {modal.map((e) => (
+        <DragDiv key={e.id} fechar={removerModal} funcao={e} />
+      ))}
     </div>
   );
 }

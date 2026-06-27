@@ -1,9 +1,24 @@
-import { fonts, cors } from '../global/cors'
+import { fonts, cors } from "../global/cors";
+import { useState } from "react";
 
 export default function TimelineDemo({ d }) {
+  const [currentSelectTimeline, setCurrentSelectTimeline] = useState("Fiscal");
   const inicioDia = 6;
   const fimDia = 22;
   const totalColunas = (fimDia - inicioDia) * 2;
+
+  const funcaoF = [
+    "Operador",
+    "Selfiecheckout",
+    "Repositor",
+    "Hortifrut",
+    "Padaria",
+    "Açougue",
+    "Prevenção",
+    "Ecommerce",
+    "Limpeza",
+    "Noturno",
+  ];
 
   function horaParaNumero(hora) {
     if (!hora || typeof hora !== "string") {
@@ -35,29 +50,56 @@ export default function TimelineDemo({ d }) {
     return inicioA - inicioB;
   });
 
+  const resultado = funcionariosOrdenados.filter(
+    (e) => e.funcao === currentSelectTimeline,
+  );
+
   return (
     <div
       style={{
         display: "grid",
         gridTemplateColumns: `repeat(${totalColunas}, minmax(0, 1fr))`,
-        height: "55%",
+        height: "75%",
         width: "100%",
         backgroundColor: cors.white,
         borderRadius: 20,
         padding: "15px 0px 25px 25px",
-        border: `1px solid ${cors.border}` 
+        border: `1px solid ${cors.border}`,
       }}
     >
-      <h1
+      <div
         style={{
-          fontSize: fonts.medio,
-          fontWeight: "bold",
-          marginBottom: 15,
           gridColumn: `1 / ${totalColunas + 1}`,
+          display: "flex",
+          justifyContent: "space-between",
         }}
       >
-        Timeline de Horários
-      </h1>
+        <h1
+          style={{
+            fontSize: fonts.medio,
+            fontWeight: "bold",
+            marginBottom: 15,
+          }}
+        >
+          Timeline de Horários
+        </h1>
+        <select
+          style={{
+            padding: 5,
+            userSelect: "none",
+            outline: "none",
+            fontSize: fonts.pequeno,
+          }}
+          onClick={(e) => setCurrentSelectTimeline(e.target.value)}
+        >
+          <option value="Fiscal">Fiscal</option>
+          {funcaoF.map((e, i) => (
+            <option key={i} value={e}>
+              {e}
+            </option>
+          ))}
+        </select>
+      </div>
 
       <div
         style={{
@@ -66,7 +108,7 @@ export default function TimelineDemo({ d }) {
           overflowY: "auto",
           scrollbarWidth: "none",
           gridColumn: `1 / ${totalColunas + 1}`,
-          paddingRight: 1
+          paddingRight: 1,
         }}
       >
         <div
@@ -93,8 +135,7 @@ export default function TimelineDemo({ d }) {
             />
           ))}
 
-          {funcionariosOrdenados.map((e) => {
-            console.log(e);
+          {resultado.map((e) => {
             const array = [
               {
                 inicio: e.horario.entrada,
@@ -108,7 +149,14 @@ export default function TimelineDemo({ d }) {
 
             return (
               <div style={{ zIndex: 1, gridColumn: `1 / ${totalColunas + 1}` }}>
-                <p style={{ left: 10, position: "relative", marginBottom: 10, fontSize: fonts.pequeno }}>
+                <p
+                  style={{
+                    left: 10,
+                    position: "relative",
+                    marginBottom: 10,
+                    fontSize: fonts.pequeno,
+                  }}
+                >
                   {capitalizarNome(e.colaborador)}
                 </p>
 
@@ -171,26 +219,26 @@ export default function TimelineDemo({ d }) {
             );
           })}
         </div>
-
       </div>
-        {Array.from({ length: fimDia - inicioDia + 1 }).map((_, i) => {
-          const hora = inicioDia + i;
-          return (
-            <p
-              style={{
-                gridColumn: `${i * 2 + 1}`,
-                fontSize: 12,
-                left: -15,
-                position: "relative",
-                color: "gray",
-                top: 10,
-                zIndex: 15,
-              }}
-            >
-              {String(hora).padStart(2, "0")}:00
-            </p>
-          );
-        })}
+      {Array.from({ length: fimDia - inicioDia + 1 }).map((_, i) => {
+        const hora = inicioDia + i;
+        return (
+          <p
+            key={i}
+            style={{
+              gridColumn: `${i * 2 + 1}`,
+              fontSize: 12,
+              left: -15,
+              position: "relative",
+              color: "gray",
+              top: 10,
+              zIndex: 15,
+            }}
+          >
+            {String(hora).padStart(2, "0")}:00
+          </p>
+        );
+      })}
     </div>
   );
 }
